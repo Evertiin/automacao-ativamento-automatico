@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
@@ -7,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace reembolso_teste
 {
@@ -15,12 +17,12 @@ namespace reembolso_teste
         private static string _token;
         private static string _username;
         private static string _tela;
-        private readonly static string apiErro = "https://script.google.com/macros/s/AKfycbwpfP3sULPg1NBrWyHRS0nP3Cq398Axz5ViXGFQyH0sXIR5TM3M8JKYIoXVqzqITyt3/exec";
-        private readonly static string apiExistente = "https://script.google.com/macros/s/AKfycbz6rt50p6NoKUnAPhRTZJVVsiRmTLu2Uka-u5EN4r1QOLKUbJV4JqYXvxmTqQr6ZXUf/exec";
-        private readonly static string urlConcluida = "https://script.google.com/macros/s/AKfycbxZcwa99f0wpRaR6gLDND_9Ri8DlJMOTWAaRHQFjzA3PhmiLSSeDvwoVn45mvDpvMOk/exec";
-        private readonly static string urlPostTelas = "https://script.google.com/macros/s/AKfycbyQ_QDfnPXtTJUYsatlEKsAz0N2LEawqYmh2w0cWKO1_rOdiJqCLWluQfhFTwnDHucb/exec";
-        private readonly static string urlTelaSim = "https://script.google.com/macros/s/AKfycbxJBISprFqnngfqeCc2ZvLIU70dsCCSNr1OIZx09IYKMrh70ChPlx85KtQaRGb65RmR/exec";
-        private readonly static string apiUrl = "https://script.google.com/macros/s/AKfycbxtiKxz3TYsZKVJBDr0j7Mv_PIfwsDALeIq0K0s3EAy_ONpRSBTWH1v4VIQQSb9szPK/exec";
+        private readonly static string apiErro = "https://script.google.com/macros/s/AKfycbxdpZ_aiRhdgjUawpkzLizmo-VRgWu5ByiqSDh3ZexPWr6qCiZowqzZQ0dSAx_yAQ/exec";
+        //private readonly static string apiExistente = "https://script.google.com/macros/s/AKfycbz6rt50p6NoKUnAPhRTZJVVsiRmTLu2Uka-u5EN4r1QOLKUbJV4JqYXvxmTqQr6ZXUf/exec";
+        private readonly static string urlConcluida = "https://script.google.com/macros/s/AKfycby2HcMzkRJJq12FEHyPlHyPZaQwtCpGu90HD44KWpEffwwRKKUiGeLzDccUsY22tfw/exec";
+        private readonly static string urlPostTelas = "https://script.google.com/macros/s/AKfycbw1VsGdO1IBki4eT1WAg2sQTTnT6MgKIB10YEBMZc291KnJLHlCKC6FAghFPOBADys/exec";
+        private readonly static string urlTelaSim = "https://script.google.com/macros/s/AKfycbyF8jvE_8KBGRsJRp-PBXKwmAaFZEtBLW27_dEBMdez8LKIyGdtlqikg_86_hJNbjY/exec";
+        private readonly static string apiUrl = "https://script.google.com/macros/s/AKfycbybNIYK9IuekFN_WniKCA3BiY0T8arJyh382zh8tpmttjs4Ol2DPG60OYlXAoEe_Jk/exec";
         static HttpClient client = new HttpClient();
 
 
@@ -34,7 +36,17 @@ namespace reembolso_teste
 
                    
                     Console.WriteLine("Buscando clientes inativados!");
-                    await Task.Delay(1000);
+                    
+                    //string filePath = @"C:\Users\everton\Desktop\MacroooSimAtualizada\AlphaMacro.exe";
+
+                    // Cria um novo processo
+                    // Process process = new Process();
+                    //process.StartInfo.FileName = filePath;
+
+                    // Inicia o processo
+                    //process.Start();
+                    //await Task.Delay(1000);
+                    //Environment.Exit(0);
                     await PostValidarCompra();
                     Console.WriteLine("Cliente ativado!");
                     Console.Clear();
@@ -44,10 +56,23 @@ namespace reembolso_teste
                     Console.WriteLine($"Erro inesperado: {ex.Message}");
 
                 }
-                await Task.Delay(10000);
+                await Task.Delay(120000);
             }
             
         }
+
+        public static void RestartApplication()
+        {
+            // Capture o caminho do executável da aplicação
+            string applicationPath = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
+
+            // Inicie um novo processo da mesma aplicação
+            System.Diagnostics.Process.Start(applicationPath);
+
+            // Encerre a aplicação atual
+            Environment.Exit(0);
+        }
+
 
 
         public static async Task PostValidarCompra()
@@ -60,7 +85,7 @@ namespace reembolso_teste
 
             string[] array4Telas = new string[7] { "plarwq1n", "plavgv1n", "plazvdzj", "264909", "264914", "21873", "21873" };
 
-            string url = "https://zyon.sigma-billing.com/api/customers";
+            string url = "https://tp.sigma-billing.com/api/customers";
             string bearerToken = _token;
 
             List<string> valores = await GetValoresFromApi(apiUrl);
@@ -76,12 +101,12 @@ namespace reembolso_teste
             }
             Console.WriteLine("Iniciando processo de ativação!");
             await Task.Delay(1000);
-            string urlLogin = "https://zyon.sigma-billing.com/api/auth/login";
+            string urlLogin = "https://tp.sigma-billing.com/api/auth/login";
 
             var requestBody = new
             {
-                username = "Goldcard",
-                password = "equipegold"
+                username = "goldcard",
+                password = "Card3399"
             };
             var jsonContent = JsonSerializer.Serialize(requestBody);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -90,8 +115,8 @@ namespace reembolso_teste
             client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br, zstd");
             client.DefaultRequestHeaders.Add("Accept-Language", "pt-BR,pt;q=0.6");
             client.DefaultRequestHeaders.Add("Locale", "pt");
-            client.DefaultRequestHeaders.Add("Origin", "https://zyon.sigma-billing.com");
-            client.DefaultRequestHeaders.Referrer = new Uri("https://zyon.sigma-billing.com/");
+            client.DefaultRequestHeaders.Add("Origin", "https://tp.sigma-billing.com");
+            client.DefaultRequestHeaders.Referrer = new Uri("https://tp.sigma-billing.com/");
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36");
 
             try
@@ -171,12 +196,11 @@ namespace reembolso_teste
 
                 var data = new
                 {
-                    bouquets = "",
-                    connections = telaInt,
-                    package_id = "Yen129WPEa",
-                    password = "gold81500",
                     server_id = "BV4D3rLaqZ",
+                    package_id = "VpKDaJWRAa",
                     trial_hours = 1,
+                    connections = telaInt,
+                    password = "gold81500",                
                     username = valor
                 };
 
@@ -188,8 +212,8 @@ namespace reembolso_teste
                 client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br, zstd");
                 client.DefaultRequestHeaders.Add("Accept-Language", "pt-BR,pt;q=0.6");
                 client.DefaultRequestHeaders.Add("Locale", "pt");
-                client.DefaultRequestHeaders.Add("Origin", "https://zyon.sigma-billing.com");
-                client.DefaultRequestHeaders.Referrer = new Uri("https://zyon.sigma-billing.com/");
+                client.DefaultRequestHeaders.Add("Origin", "https://tp.sigma-billing.com");
+                client.DefaultRequestHeaders.Referrer = new Uri("https://tp.sigma-billing.com/");
                 client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36");
 
                 try
@@ -211,11 +235,19 @@ namespace reembolso_teste
                         Console.WriteLine("Cliente já existente!");
 
                     }
+
+                    else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    {
+                        await EnviarPostAsync(urlConcluida, valor);
+                        
+
+                    }
                     else
                     {
                         
                         Console.WriteLine($"Código de status não tratado: {response.StatusCode}");
-                        await EnviarPostAsync(apiErro, valor);
+                        //await EnviarPostAsync(apiErro, valor);
+                        RestartApplication();
                     }
 
                 }
@@ -224,19 +256,22 @@ namespace reembolso_teste
                     if (e.StatusCode == System.Net.HttpStatusCode.Forbidden)
                     {
                         Console.WriteLine("Acesso negado. Verifique se o token Bearer está correto e tem as permissões necessárias.");
-                        await EnviarPostAsync(apiErro, valor);
+                        //await EnviarPostAsync(apiErro, valor);
+                        RestartApplication();
                     }
                     else if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
                         // Lógica para tratar o código 404 Not Found
                         Console.WriteLine("Recurso não encontrado (404 Not Found).");
-                        await EnviarPostAsync(apiErro, valor);
+                        //await EnviarPostAsync(apiErro, valor);
+                        RestartApplication();
                     }
                     
                     else
                     {
                         Console.WriteLine($"Erro ao fazer a requisição: {e.Message}");
-                        await EnviarPostAsync(apiErro, valor);
+                        //await EnviarPostAsync(apiErro, valor);
+                        RestartApplication();
                     }
                 }
             }
@@ -270,7 +305,7 @@ namespace reembolso_teste
         {
             using (HttpClient client = new HttpClient())
             {
-                string parametros = $"valor={Uri.EscapeDataString(valorColunaD)}";
+                string parametros = $"valorD={Uri.EscapeDataString(valorColunaD)}";
                 var content = new StringContent(parametros, Encoding.UTF8, "application/x-www-form-urlencoded");
                 return await client.PostAsync(url, content);
             }

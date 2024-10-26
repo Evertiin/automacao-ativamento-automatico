@@ -12,3 +12,4 @@ C:\Users\everton\Desktop\ThreadsC#\threads-teste\obj\Debug\net8.0\refint\threads
 C:\Users\everton\Desktop\ThreadsC#\threads-teste\obj\Debug\net8.0\threads-teste.pdb
 C:\Users\everton\Desktop\ThreadsC#\threads-teste\obj\Debug\net8.0\threads-teste.genruntimeconfig.cache
 C:\Users\everton\Desktop\ThreadsC#\threads-teste\obj\Debug\net8.0\ref\threads-teste.dll
+C:\Users\everton\Desktop\ThreadsC#\threads-teste\obj\Debug\net8.0\threads-teste.sourcelink.json
