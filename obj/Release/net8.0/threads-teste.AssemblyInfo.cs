@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("threads-teste")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+99d83ec49be0cf7e63ad889e9cdeee2503042975")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dbb9f6c8f65a90ff6cf62037bbddfb6a85d6489a")]
 [assembly: System.Reflection.AssemblyProductAttribute("threads-teste")]
 [assembly: System.Reflection.AssemblyTitleAttribute("threads-teste")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

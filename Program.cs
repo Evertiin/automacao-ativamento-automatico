@@ -1,304 +1,77 @@
 ﻿using System;
-using System.Diagnostics;
-using System.IO;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO.Compression;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
-namespace reembolso_teste
+namespace ReembolsoTeste
 {
     public class Program
     {
         private static string _token;
-        private static string _username;
-        private static string _tela;
-        private readonly static string apiErro = "https://script.google.com/macros/s/AKfycbxdpZ_aiRhdgjUawpkzLizmo-VRgWu5ByiqSDh3ZexPWr6qCiZowqzZQ0dSAx_yAQ/exec";
-        //private readonly static string apiExistente = "https://script.google.com/macros/s/AKfycbz6rt50p6NoKUnAPhRTZJVVsiRmTLu2Uka-u5EN4r1QOLKUbJV4JqYXvxmTqQr6ZXUf/exec";
-        private readonly static string urlConcluida = "https://script.google.com/macros/s/AKfycby2HcMzkRJJq12FEHyPlHyPZaQwtCpGu90HD44KWpEffwwRKKUiGeLzDccUsY22tfw/exec";
-        private readonly static string urlPostTelas = "https://script.google.com/macros/s/AKfycbw1VsGdO1IBki4eT1WAg2sQTTnT6MgKIB10YEBMZc291KnJLHlCKC6FAghFPOBADys/exec";
-        private readonly static string urlTelaSim = "https://script.google.com/macros/s/AKfycbyF8jvE_8KBGRsJRp-PBXKwmAaFZEtBLW27_dEBMdez8LKIyGdtlqikg_86_hJNbjY/exec";
-        private readonly static string apiUrl = "https://script.google.com/macros/s/AKfycbybNIYK9IuekFN_WniKCA3BiY0T8arJyh382zh8tpmttjs4Ol2DPG60OYlXAoEe_Jk/exec";
-        static HttpClient client = new HttpClient();
+        private static string valorCompra;
+        private readonly static HttpClient client = new HttpClient();
 
+        private static readonly Dictionary<string, string> urls = new()
+        {
+            { "ApiErro", "https://script.google.com/macros/s/AKfycbxdpZ_aiRhdgjUawpkzLizmo-VRgWu5ByiqSDh3ZexPWr6qCiZowqzZQ0dSAx_yAQ/exec" },
+            { "UrlConcluida", "https://script.google.com/macros/s/AKfycby2HcMzkRJJq12FEHyPlHyPZaQwtCpGu90HD44KWpEffwwRKKUiGeLzDccUsY22tfw/exec" },
+            { "UrlPostTelas", "https://script.google.com/macros/s/AKfycbw1VsGdO1IBki4eT1WAg2sQTTnT6MgKIB10YEBMZc291KnJLHlCKC6FAghFPOBADys/exec" },
+            { "UrlTelaSim", "https://script.google.com/macros/s/AKfycbyF8jvE_8KBGRsJRp-PBXKwmAaFZEtBLW27_dEBMdez8LKIyGdtlqikg_86_hJNbjY/exec" },
+            { "ApiUrl", "https://script.google.com/macros/s/AKfycbybNIYK9IuekFN_WniKCA3BiY0T8arJyh382zh8tpmttjs4Ol2DPG60OYlXAoEe_Jk/exec" }
+        };
 
         public static async Task Main()
         {
-         
-            while (true)
-            {
-                try
-                {
-
-                   
-                    Console.WriteLine("Buscando clientes inativados!");
-                    
-                    //string filePath = @"C:\Users\everton\Desktop\MacroooSimAtualizada\AlphaMacro.exe";
-
-                    // Cria um novo processo
-                    // Process process = new Process();
-                    //process.StartInfo.FileName = filePath;
-
-                    // Inicia o processo
-                    //process.Start();
-                    //await Task.Delay(1000);
-                    //Environment.Exit(0);
-                    await PostValidarCompra();
-                    Console.WriteLine("Cliente ativado!");
-                    Console.Clear();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Erro inesperado: {ex.Message}");
-
-                }
-                await Task.Delay(120000);
-            }
-            
-        }
-
-        public static void RestartApplication()
-        {
-            // Capture o caminho do executável da aplicação
-            string applicationPath = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName;
-
-            // Inicie um novo processo da mesma aplicação
-            System.Diagnostics.Process.Start(applicationPath);
-
-            // Encerre a aplicação atual
-            Environment.Exit(0);
-        }
-
-
-
-        public static async Task PostValidarCompra()
-        {
-            string[] array2Telas = new string[13] {"pla4kl6v","pla6grjw","pladekre","plaemxex","plazvzno","205074",
-             "260858","262168","262172","13189","86332","37831","12009"};
-
-            string[] array3Telas = new string[9] {"pla648k1", "plazd6zm", "plazdl9l", "205075", "262173", "274443",
-            "269390","42519","58436"};
-
-            string[] array4Telas = new string[7] { "plarwq1n", "plavgv1n", "plazvdzj", "264909", "264914", "21873", "21873" };
-
-            string url = "https://tp.sigma-billing.com/api/customers";
-            string bearerToken = _token;
-
-            List<string> valores = await GetValoresFromApi(apiUrl);
-
-
-            if (valores.Count == 0)
-            {
-                Console.WriteLine(" Nenhuma cliente encontrado!...");
-                await Task.Delay(1000);
-                Console.Clear();
-                 
-                return; // Sai do método caso não haja valores
-            }
-            Console.WriteLine("Iniciando processo de ativação!");
-            await Task.Delay(1000);
-            string urlLogin = "https://tp.sigma-billing.com/api/auth/login";
-
-            var requestBody = new
-            {
-                username = "goldcard",
-                password = "Card3399"
-            };
-            var jsonContent = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br, zstd");
-            client.DefaultRequestHeaders.Add("Accept-Language", "pt-BR,pt;q=0.6");
-            client.DefaultRequestHeaders.Add("Locale", "pt");
-            client.DefaultRequestHeaders.Add("Origin", "https://tp.sigma-billing.com");
-            client.DefaultRequestHeaders.Referrer = new Uri("https://tp.sigma-billing.com/");
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36");
+            ConfigurarHttpClient();
+            Console.WriteLine("Buscando clientes inativados!");
 
             try
             {
-                HttpResponseMessage response = await client.PostAsync(urlLogin, content);
-                if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    string responseBody;
-                    if (response.Content.Headers.ContentEncoding.Contains("gzip"))
-                    {
-                        using (var responseStream = await response.Content.ReadAsStreamAsync())
-                        using (var decompressedStream = new GZipStream(responseStream, CompressionMode.Decompress))
-                        using (var streamReader = new StreamReader(decompressedStream))
-                        {
-                            responseBody = await streamReader.ReadToEndAsync();
-                        }
-                    }
-                    else
-                    {
-                        responseBody = await response.Content.ReadAsStringAsync();
-                    }
+                await PostValidarCompra();
+                Console.WriteLine("Processo concluído!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro inesperado: {ex.Message}");
+            }
+        }
 
-                    var responseData = JsonDocument.Parse(responseBody);
-                    _token = responseData.RootElement.GetProperty("token").GetString();
-                }
-                // Console.WriteLine("Token Bearer: " + _token);
-            }
-            catch (HttpRequestException e)
+        private static void ConfigurarHttpClient()
+        {
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("Locale", "pt");
+            client.DefaultRequestHeaders.Add("Origin", "https://tp.sigma-billing.com");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+        }
+
+        public static async Task PostValidarCompra()
+        {
+            var valores = await GetValoresFromApi(urls["ApiUrl"]);
+            if (valores.Count == 0)
             {
-                Console.WriteLine($"Erro ao fazer a requisição: {e.Message}");
+                Console.WriteLine("Nenhum cliente encontrado.");
+                return;
             }
-            catch (JsonException e)
-            {
-                Console.WriteLine($"Erro ao parsear JSON: {e.Message}");
-            }
+
+            Console.WriteLine("Iniciando processo de ativação...");
+            _token = await ObterTokenAsync();
+            if (string.IsNullOrEmpty(_token)) return;
 
             foreach (var valor in valores)
             {
-                string _tela = await EnviarPostTelasAsync(urlPostTelas, valor);
-                int.TryParse(_tela, out int telaInt);
-                await Task.Delay(1000);
-
-                bool existeEmArray1 = array2Telas.Contains(_tela);
-                bool existeEmArray2 = array3Telas.Contains(_tela);
-                bool existeEmArray3 = array4Telas.Contains(_tela);
-
-                if (existeEmArray1)
-                {
-                    telaInt = 2;
-                    await EnviarPostSimTelaAsync(urlTelaSim, valor);
-                    await Task.Delay(1000);
-                    
-                }
-                else if (existeEmArray2)
-                {
-                    telaInt = 3;
-                    await EnviarPostSimTelaAsync(urlTelaSim, valor);
-                    await Task.Delay(1000);
-                    
-                }
-                else if (existeEmArray3)
-                {
-                    telaInt = 4;
-                    await EnviarPostSimTelaAsync(urlTelaSim, valor);
-                    await Task.Delay(1000);
-                    
-                }
-
-                else
-                {
-                    telaInt = 1;
-
-                }
-
-
-
-
-                var data = new
-                {
-                    server_id = "BV4D3rLaqZ",
-                    package_id = "VpKDaJWRAa",
-                    trial_hours = 1,
-                    connections = telaInt,
-                    password = "gold81500",                
-                    username = valor
-                };
-
-                var jsonContentt = JsonSerializer.Serialize(data);
-                var contentt = new StringContent(jsonContentt, Encoding.UTF8, "application/json");
-
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br, zstd");
-                client.DefaultRequestHeaders.Add("Accept-Language", "pt-BR,pt;q=0.6");
-                client.DefaultRequestHeaders.Add("Locale", "pt");
-                client.DefaultRequestHeaders.Add("Origin", "https://tp.sigma-billing.com");
-                client.DefaultRequestHeaders.Referrer = new Uri("https://tp.sigma-billing.com/");
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36");
-
-                try
-                {
-
-                    HttpResponseMessage response = await client.PostAsync(url, contentt);
-
-                    if (response.StatusCode == System.Net.HttpStatusCode.Created)
-                    {
-                        await Task.Delay(1000);
-                        await EnviarPostAsync(urlConcluida, valor);
-                        
-
-
-                    }
-                    else if (response.StatusCode == System.Net.HttpStatusCode.UnprocessableEntity)
-                    {
-                        await EnviarPostAsync(urlConcluida, valor);
-                        Console.WriteLine("Cliente já existente!");
-
-                    }
-
-                    else if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
-                    {
-                        await EnviarPostAsync(urlConcluida, valor);
-                        
-
-                    }
-                    else
-                    {
-                        
-                        Console.WriteLine($"Código de status não tratado: {response.StatusCode}");
-                        //await EnviarPostAsync(apiErro, valor);
-                        RestartApplication();
-                    }
-
-                }
-                catch (HttpRequestException e)
-                {
-                    if (e.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                    {
-                        Console.WriteLine("Acesso negado. Verifique se o token Bearer está correto e tem as permissões necessárias.");
-                        //await EnviarPostAsync(apiErro, valor);
-                        RestartApplication();
-                    }
-                    else if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
-                    {
-                        // Lógica para tratar o código 404 Not Found
-                        Console.WriteLine("Recurso não encontrado (404 Not Found).");
-                        //await EnviarPostAsync(apiErro, valor);
-                        RestartApplication();
-                    }
-                    
-                    else
-                    {
-                        Console.WriteLine($"Erro ao fazer a requisição: {e.Message}");
-                        //await EnviarPostAsync(apiErro, valor);
-                        RestartApplication();
-                    }
-                }
+                valorCompra = valor;
+                string _tela = await EnviarPostTelasAsync(urls["UrlPostTelas"], valor);
+                int telaInt = await DefinirTela(_tela);
+                await EnviarDadosClienteAsync(valor, telaInt);
+                await EnviarPostAsync(urls["UrlConcluida"], valor);
             }
-            Console.WriteLine("Concluído!");
-            Console.Clear();
-        }
-
-       
-
-        private static async Task<List<string>> GetValoresFromApi(string apiUrl)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                HttpResponseMessage response = await client.GetAsync(apiUrl);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    var result = JsonSerializer.Deserialize<Resultado>(responseBody);
-                    return result.valoresD_vazia;
-                }
-                else
-                {
-                    Console.WriteLine("Erro ao acessar a API: " + response.StatusCode);
-                    return new List<string>(); // Retorna uma lista vazia em caso de erro na requisição
-                }
-            }
+            Console.WriteLine("Processo de ativação concluído!");
         }
 
         private static async Task<HttpResponseMessage> EnviarPostAsync(string url, string valorColunaD)
@@ -310,7 +83,6 @@ namespace reembolso_teste
                 return await client.PostAsync(url, content);
             }
         }
-
         private static async Task<HttpResponseMessage> EnviarPostSimTelaAsync(string url, string valorColunaD)
         {
             using (HttpClient client = new HttpClient())
@@ -321,60 +93,112 @@ namespace reembolso_teste
             }
         }
 
-
-        public static async Task<string> EnviarPostTelasAsync(string url, string valorColunaD)
+        private static async Task<int> DefinirTela(string tela)
         {
-            using (HttpClient client = new HttpClient())
+            var array2Telas = new[] { "pla4kl6v", "pla6grjw", "pladekre", "plaemxex", "plazvzno", "205074", "260858", "262168", "262172", "13189", "86332", "37831", "12009" };
+            var array3Telas = new[] { "pla648k1", "plazd6zm", "plazdl9l", "205075", "262173", "274443", "269390", "42519", "58436" };
+            var array4Telas = new[] { "plarwq1n", "plavgv1n", "plazvdzj", "264909", "264914", "21873", "21873" };
+
+            if (array2Telas.Contains(tela))
             {
-                try
-                {
-                    // Construindo os parâmetros no formato application/x-www-form-urlencoded
-                    var parametros = new List<KeyValuePair<string, string>>
-                    {
-                        new KeyValuePair<string, string>("valorD", valorColunaD)
-                    };
-                    var content = new FormUrlEncodedContent(parametros);
+                await EnviarPostSimTelaAsync(urls["UrlTelaSim"], valorCompra);
+                return 2;
+            }
+            if (array3Telas.Contains(tela))
+            {
+                await EnviarPostSimTelaAsync(urls["UrlTelaSim"], valorCompra);
+                return 3;
+            }
+            if (array4Telas.Contains(tela))
+            {
+                await EnviarPostSimTelaAsync(urls["UrlTelaSim"], valorCompra);
+                return 4;
+            }
 
-                    // Fazendo a requisição POST e recebendo a resposta
-                    var resposta = await client.PostAsync(url, content).ConfigureAwait(false);
+            return 1; 
+        }
 
-                    // Verificando se a requisição foi bem-sucedida
-                    if (resposta.IsSuccessStatusCode)
-                    {
-                        var respostaString = await resposta.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-                        // Desserializar para o tipo apropriado (RespostaApi neste caso)
-                        RespostaApi respostaApi = JsonSerializer.Deserialize<RespostaApi>(respostaString);
+        private static async Task<string> ObterTokenAsync()
+        {
+            var loginData = new { username = "goldcard", password = "Card3399" };
+            var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
-                        // Retornar o valor de valorK 
-                        return respostaApi.valorK;
-                        
-                    }
-                    else
-                    {
-                        // Se não for bem-sucedida, ler a mensagem de erro da resposta
-                        var respostaErro = await resposta.Content.ReadAsStringAsync().ConfigureAwait(false);
-                        throw new HttpRequestException($"Erro ao enviar POST: {resposta.StatusCode}, Detalhes: {respostaErro}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Capturando e tratando exceções gerais
-                    throw new HttpRequestException($"Erro durante o envio do POST: {ex.Message}");
-                }
+            try
+            {
+                var response = await client.PostAsync("https://tp.sigma-billing.com/api/auth/login", content);
+                return await ExtrairToken(response);
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"Erro ao fazer login: {e.Message}");
+                return null;
             }
         }
 
-        public class Resultado
+        private static async Task<string> ExtrairToken(HttpResponseMessage response)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                var responseBody = response.Content.Headers.ContentEncoding.Contains("gzip") ?
+                    await DescomprimirResponse(response) : await response.Content.ReadAsStringAsync();
+
+                return JsonDocument.Parse(responseBody).RootElement.GetProperty("token").GetString();
+            }
+            Console.WriteLine("Erro ao autenticar.");
+            return null;
+        }
+
+        private static async Task<string> DescomprimirResponse(HttpResponseMessage response)
+        {
+            using var responseStream = await response.Content.ReadAsStreamAsync();
+            using var decompressedStream = new GZipStream(responseStream, CompressionMode.Decompress);
+            using var streamReader = new StreamReader(decompressedStream);
+            return await streamReader.ReadToEndAsync();
+        }
+
+        private static async Task<List<string>> GetValoresFromApi(string apiUrl)
+        {
+            HttpResponseMessage response = await client.GetAsync(apiUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = JsonSerializer.Deserialize<Resultado>(await response.Content.ReadAsStringAsync());
+                return result?.valoresD_vazia ?? new List<string>();
+            }
+            Console.WriteLine("Erro ao acessar a API.");
+            return new List<string>();
+        }
+
+        private static async Task EnviarDadosClienteAsync(string valor, int telaInt)
+        {
+            var data = new { server_id = "BV4D3rLaqZ", package_id = "VpKDaJWRAa", trial_hours = 1, connections = telaInt, password = "gold81500", username = valor };
+            var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            var response = await client.PostAsync("https://tp.sigma-billing.com/api/customers", content);
+            Console.WriteLine(response.IsSuccessStatusCode ? "Cliente ativado!" : "Erro na ativação do cliente.");
+        }
+
+        private static async Task<string> EnviarPostTelasAsync(string url, string valor)
+        {
+            var parametros = new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("valorD", valor) });
+            HttpResponseMessage resposta = await client.PostAsync(url, parametros);
+            if (resposta.IsSuccessStatusCode)
+            {
+                var respostaString = await resposta.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<RespostaApi>(respostaString)?.valorK;
+            }
+            throw new HttpRequestException($"Erro ao enviar POST para {url}");
+        }
+
+        private class Resultado
         {
             public List<string> valoresD_vazia { get; set; }
         }
 
-        public class RespostaApi
+        private class RespostaApi
         {
             public string valorK { get; set; }
         }
-
-
     }
 }
