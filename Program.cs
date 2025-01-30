@@ -46,7 +46,7 @@ namespace ReembolsoTeste
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
             client.DefaultRequestHeaders.Add("Locale", "pt");
-            client.DefaultRequestHeaders.Add("Origin", "https://tp.sigma-billing.com");
+            client.DefaultRequestHeaders.Add("Origin", "https://goldcard.sigma.st");
             client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
         }
 
@@ -95,7 +95,7 @@ namespace ReembolsoTeste
 
         private static async Task<int> DefinirTela(string tela)
         {
-            var array2Telas = new[] { "pla4kl6v", "pla6grjw", "pladekre", "plaemxex", "plazvzno", "205074", "260858", "262168", "262172", "13189", "86332", "37831", "12009" };
+            var array2Telas = new[] {"pla11wm8", "pla4kl6v", "pla6grjw", "pladekre", "plaemxex", "plazvzno", "205074", "260858", "262168", "262172", "13189", "86332", "37831", "12009" };
             var array3Telas = new[] { "pla648k1", "plazd6zm", "plazdl9l", "205075", "262173", "274443", "269390", "42519", "58436" };
             var array4Telas = new[] { "plarwq1n", "plavgv1n", "plazvdzj", "264909", "264914", "21873", "21873" };
 
@@ -121,12 +121,12 @@ namespace ReembolsoTeste
 
         private static async Task<string> ObterTokenAsync()
         {
-            var loginData = new { username = "goldcard", password = "Card3399" };
+            var loginData = new { username = "Goldcard", password = "Card3399!" };
             var content = new StringContent(JsonSerializer.Serialize(loginData), Encoding.UTF8, "application/json");
 
             try
             {
-                var response = await client.PostAsync("https://tp.sigma-billing.com/api/auth/login", content);
+                var response = await client.PostAsync("https://goldcard.sigma.st/api/auth/login", content);
                 return await ExtrairToken(response);
             }
             catch (HttpRequestException e)
@@ -171,11 +171,11 @@ namespace ReembolsoTeste
 
         private static async Task EnviarDadosClienteAsync(string valor, int telaInt)
         {
-            var data = new { server_id = "BV4D3rLaqZ", package_id = "VpKDaJWRAa", trial_hours = 1, connections = telaInt, password = "gold81500", username = valor };
+            var data = new { server_id = "BV4D3rLaqZ", package_id = "qK4WrQDeNj", trial_hours = 1, connections = telaInt, password = "gold81500", username = valor };
             var content = new StringContent(JsonSerializer.Serialize(data), Encoding.UTF8, "application/json");
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-            var response = await client.PostAsync("https://tp.sigma-billing.com/api/customers", content);
+            var response = await client.PostAsync("https://goldcard.sigma.st/api/customers", content);
             Console.WriteLine(response.IsSuccessStatusCode ? "Cliente ativado!" : "Erro na ativação do cliente.");
         }
 
