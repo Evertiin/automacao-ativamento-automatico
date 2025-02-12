@@ -22,7 +22,8 @@ namespace ReembolsoTeste
             { "UrlConcluida", "https://script.google.com/macros/s/AKfycby2HcMzkRJJq12FEHyPlHyPZaQwtCpGu90HD44KWpEffwwRKKUiGeLzDccUsY22tfw/exec" },
             { "UrlPostTelas", "https://script.google.com/macros/s/AKfycbw1VsGdO1IBki4eT1WAg2sQTTnT6MgKIB10YEBMZc291KnJLHlCKC6FAghFPOBADys/exec" },
             { "UrlTelaSim", "https://script.google.com/macros/s/AKfycbyF8jvE_8KBGRsJRp-PBXKwmAaFZEtBLW27_dEBMdez8LKIyGdtlqikg_86_hJNbjY/exec" },
-            { "ApiUrl", "https://script.google.com/macros/s/AKfycbybNIYK9IuekFN_WniKCA3BiY0T8arJyh382zh8tpmttjs4Ol2DPG60OYlXAoEe_Jk/exec" }
+            { "ApiUrl", "https://script.google.com/macros/s/AKfycbybNIYK9IuekFN_WniKCA3BiY0T8arJyh382zh8tpmttjs4Ol2DPG60OYlXAoEe_Jk/exec" },
+            { "ApiMax", "https://api.maxplayer.tv/v3/api/public/users" }
         };
 
         public static async Task Main()
@@ -70,6 +71,7 @@ namespace ReembolsoTeste
                 int telaInt = await DefinirTela(_tela);
                 await EnviarDadosClienteAsync(valor, telaInt);
                 await EnviarPostAsync(urls["UrlConcluida"], valor);
+                await SendIptvRequest(valor);
             }
             Console.WriteLine("Processo de ativação concluído!");
         }
@@ -189,6 +191,46 @@ namespace ReembolsoTeste
                 return JsonSerializer.Deserialize<RespostaApi>(respostaString)?.valorK;
             }
             throw new HttpRequestException($"Erro ao enviar POST para {url}");
+        }
+
+        public static async Task SendIptvRequest(string valor)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                // URL do endpoint da API
+                string url = "https://api.maxplayer.tv/v3/api/public/users";
+
+                // Criar objeto com os dados
+                var requestData = new IptvRequest("1739199733427832300", valor, "gold81500");
+
+                // Serializar para JSON
+                string json = JsonSerializer.Serialize(requestData);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                // Adicionar o cabeçalho Api-Token
+                client.DefaultRequestHeaders.Add("Api-Token", "wBInTqcJweAhimkjxJzvDrns");
+
+                // Enviar requisição POST
+                HttpResponseMessage response = await client.PostAsync(url, content);
+                Console.WriteLine("Ativado no Painel MaxPlayer");
+                // Ler resposta da API
+                //string responseBody = await response.Content.ReadAsStringAsync();
+               
+            }
+        }
+
+        public class IptvRequest
+        {
+            public string domain_id { get; set; }
+            public string iptv_user { get; set; }
+            public string iptv_pass { get; set; }
+
+            public IptvRequest(string domainId, string iptvUser, string iptvPass)
+            {
+                domain_id = domainId;
+                iptv_user = iptvUser;
+                iptv_pass = iptvPass;
+            }
         }
 
         private class Resultado
